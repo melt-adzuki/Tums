@@ -26,7 +26,7 @@ pub(crate) struct Uni {
 
 #[async_trait]
 impl Api for Uni {
-    async fn from_dust(&self, s: Vec<String>) -> Result<()> {
+    async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>> {
         let base = self.list_all().await?;
 
         let base = base.iter().map(|s| s.as_str()).collect::<Vec<_>>();
@@ -63,10 +63,11 @@ impl Api for Uni {
                 } else {
                     None
                 }
-            });
+            })
+            .collect::<Vec<_>>();
 
-        for line in new_lines {
-            let content = line.0;
+        for line in new_lines.iter() {
+            let content = line.0.to_string();
             let pos = line.1 as i32;
 
             // let counter = Arc::clone(&lost_line_counter);
@@ -74,8 +75,12 @@ impl Api for Uni {
             // println!("{} + {} = {} --- {}", pos - (count as i32), count, pos, content);
             self.add(content, pos).await?;
         }
+
+        let lines_added = new_lines.iter()
+            .map(|line| line.0.to_string())
+            .collect::<Vec<_>>();
         
-        Ok(())
+        Ok(lines_added)
     }
 
     async fn list_all(&self) -> Result<Vec<String>> {

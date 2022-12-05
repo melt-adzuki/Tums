@@ -6,7 +6,7 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait Api {
     /// 抜け落ちを含む任意のウニ文字列から新しいウニを検出し，データベースに追加する
-    async fn from_dust(&self, s: Vec<String>) -> Result<()>;
+    async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>>;
 
     /// すべてのウニを文字列として出力する
     async fn list_all(&self) -> Result<Vec<String>>;

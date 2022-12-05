@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
 
     // let s = "abc\ndef\nghi";
     // let dust = s.split("\n").map(|s| s.to_string()).collect::<Vec<_>>();
-    // api.from_dust(dust).await?;
+    // let res = api.from_dust(dust).await?;
 
     // api.add("jkl".to_string(), 4).await?;
     
