@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
 use anyhow::*;
-use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use mongodb::{bson::{serde_helpers::chrono_datetime_as_bson_datetime, doc, from_bson, Bson, oid::ObjectId}, Collection};
-use futures::{StreamExt, try_join, lock::Mutex};
+use futures::{StreamExt, try_join, lock::Mutex, stream};
 use similar::{TextDiff, ChangeTag};
 use crate::api::Api;
 
@@ -24,7 +23,6 @@ pub(crate) struct Uni {
     pub(crate) collection: Collection<UniElem>,
 }
 
-#[async_trait]
 impl Api for Uni {
     async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>> {
         let base = self.list_all().await?;
@@ -46,23 +44,28 @@ impl Api for Uni {
 
         let lost_line_counter = Arc::new(Mutex::new(0));
 
-        let new_lines = diff
-            .iter_all_changes()
+        let new_lines = stream::iter(diff.iter_all_changes())
             .filter(|c| {
-                if c.tag() == ChangeTag::Delete {
-                    let counter = Arc::clone(&lost_line_counter);
-                    *counter.try_lock().unwrap() += 1;
+                let c = *c;
+                let counter = Arc::clone(&lost_line_counter);
+                async move {
+                    if c.tag() == ChangeTag::Delete {
+                        *counter.lock().await += 1;
+                    }
+                    c.tag() == ChangeTag::Insert && c.to_string_lossy().trim().len() >= 4
                 }
-                c.tag() == ChangeTag::Insert && c.to_string_lossy().trim().len() >= 4
             })
-            .filter_map(|c|{
-                c.new_index().and_then(|index| {
-                    let counter = Arc::clone(&lost_line_counter);
-                    let count = *counter.try_lock().unwrap();
-                    Some((c.to_string_lossy().to_string(), index + 1 + count))
-                })
+            .filter_map(|c| {
+                let c = c;
+                let counter = Arc::clone(&lost_line_counter);
+                async move {
+                    let count = *counter.lock().await;
+                    c.new_index().and_then(|index| {
+                        Some((c.to_string_lossy().to_string(), index + 1 + count))
+                    })
+                }
             })
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>().await;
 
         for line in new_lines.iter() {
             let content = line.0.to_string();

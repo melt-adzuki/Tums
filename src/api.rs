@@ -1,9 +1,7 @@
 use anyhow::*;
-use async_trait::async_trait;
 
 
 /// APIの抽象化レイヤー
-#[async_trait]
 pub trait Api {
     /// 抜け落ちを含む任意のウニ文字列から新しいウニを検出し，データベースに追加する
     async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>>;
