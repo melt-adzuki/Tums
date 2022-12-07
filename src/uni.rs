@@ -56,13 +56,11 @@ impl Api for Uni {
                 c.tag() == ChangeTag::Insert && c.to_string_lossy().trim().len() >= 4
             })
             .filter_map(|c|{
-                if let Some(index) = c.new_index() {
+                c.new_index().and_then(|index| {
                     let counter = Arc::clone(&lost_line_counter);
                     let count = *counter.try_lock().unwrap();
                     Some((c.to_string_lossy().to_string(), index + 1 + count))
-                } else {
-                    None
-                }
+                })
             })
             .collect::<Vec<_>>();
 
