@@ -11,3 +11,11 @@ And then clone this repo as follows:
 ```
 git clone https://github.com/melt-adzuki/Tums.git
 ```
+
+To start developing, just type:
+```
+cd Tums
+docker-compose up
+```
+
+Database should be created automatically and Mongo Express will be available at http://localhost:8081. Note that deleting or adding documents manually causes collection ordering shuffled.
