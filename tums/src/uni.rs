@@ -1,13 +1,15 @@
 use std::sync::Arc;
 
+use crate::uni_api::Api;
 use anyhow::*;
 use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
-use mongodb::{bson::{serde_helpers::chrono_datetime_as_bson_datetime, doc, from_bson, Bson, oid::ObjectId}, Collection};
-use futures::{StreamExt, try_join, lock::Mutex, stream};
-use similar::{TextDiff, ChangeTag};
-use crate::api::Api;
-
+use futures::{lock::Mutex, stream, try_join, StreamExt};
+use mongodb::{
+    bson::{doc, from_bson, oid::ObjectId, serde_helpers::chrono_datetime_as_bson_datetime, Bson},
+    Collection,
+};
+use serde::{Deserialize, Serialize};
+use similar::{ChangeTag, TextDiff};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct UniElem {
@@ -60,12 +62,12 @@ impl Api for Uni {
                 let counter = Arc::clone(&lost_line_counter);
                 async move {
                     let count = *counter.lock().await;
-                    c.new_index().and_then(|index| {
-                        Some((c.to_string_lossy().to_string(), index + 1 + count))
-                    })
+                    c.new_index()
+                        .map(|index| (c.to_string_lossy().to_string(), index + 1 + count))
                 }
             })
-            .collect::<Vec<_>>().await;
+            .collect::<Vec<_>>()
+            .await;
 
         for line in new_lines.iter() {
             let content = line.0.to_string();
@@ -77,19 +79,18 @@ impl Api for Uni {
             self.add(content, pos).await?;
         }
 
-        let lines_added = new_lines.iter()
+        let lines_added = new_lines
+            .iter()
             .map(|line| line.0.to_string())
             .collect::<Vec<_>>();
-        
+
         Ok(lines_added)
     }
 
     async fn list_all(&self) -> Result<Vec<String>> {
-        let pipeline = vec![
-            doc! {
-                "$sort": { "pos": 1 },
-            },
-        ];
+        let pipeline = vec![doc! {
+            "$sort": { "pos": 1 },
+        }];
 
         let cursor = self.collection.aggregate(pipeline, None).await?;
 
@@ -104,11 +105,9 @@ impl Api for Uni {
     }
 
     async fn list_short(&self) -> Result<Vec<String>> {
-        let pipeline = vec![
-            doc! {
-                "$sort": { "added_date": -1 },
-            },
-        ];
+        let pipeline = vec![doc! {
+            "$sort": { "added_date": -1 },
+        }];
 
         let mut cursor = self.collection.aggregate(pipeline, None).await?;
 
@@ -123,7 +122,7 @@ impl Api for Uni {
                 e
             };
             let c = e.content.chars().count();
-            
+
             char_count += c;
 
             if char_count > 2700 {
@@ -142,28 +141,35 @@ impl Api for Uni {
 
         Ok(lines)
     }
-    
+
     async fn add(&self, content: String, pos: i32) -> Result<()> {
         let last_pos = self.collection.count_documents(None, None).await? as i32;
         let query = doc! { "pos": { "$gte": pos, "$lte": last_pos } };
         let update = doc! { "$inc": { "pos": 1 } };
         self.collection.update_many(query, update, None).await?;
-        
-        self.collection.insert_one(UniElem {
-            id: None,
-            content: content.trim().to_string(),
-            added_date: Utc::now(),
-            pos,
-        }, None).await?;
-        
+
+        self.collection
+            .insert_one(
+                UniElem {
+                    id: None,
+                    content: content.trim().to_string(),
+                    added_date: Utc::now(),
+                    pos,
+                },
+                None,
+            )
+            .await?;
+
         Ok(())
     }
 
     async fn remove(&self, pos: i32) -> Result<()> {
         let last_pos = self.collection.count_documents(None, None).await? as i32;
 
-        self.collection.delete_one(doc! { "pos": pos }, None).await?;
-        
+        self.collection
+            .delete_one(doc! { "pos": pos }, None)
+            .await?;
+
         let query = doc! { "pos": { "$gt": pos, "$lte": last_pos } };
         let update = doc! { "$inc": { "pos": -1 } };
         self.collection.update_many(query, update, None).await?;
@@ -181,8 +187,16 @@ impl Api for Uni {
             .await;
 
         try_join!(
-            self.collection.find_one_and_update(doc! { "_id": vec[0].id }, doc! { "$set": { "pos": vec[1].pos } }, None),
-            self.collection.find_one_and_update(doc! { "_id": vec[1].id }, doc! { "$set": { "pos": vec[0].pos } }, None),
+            self.collection.find_one_and_update(
+                doc! { "_id": vec[0].id },
+                doc! { "$set": { "pos": vec[1].pos } },
+                None
+            ),
+            self.collection.find_one_and_update(
+                doc! { "_id": vec[1].id },
+                doc! { "$set": { "pos": vec[0].pos } },
+                None
+            ),
         )?;
 
         Ok(())

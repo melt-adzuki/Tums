@@ -1,6 +1,12 @@
 version: '3.1'
 
 services:
+  tums:
+    build: ./tums
+    volumes:
+      - ./tums:/app
+    tty: true
+
   mongo:
     image: mongo
     restart: always
