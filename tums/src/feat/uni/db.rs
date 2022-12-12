@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::uni_api::Api;
+use super::api::Api;
 use anyhow::*;
 use chrono::{DateTime, Utc};
 use futures::{lock::Mutex, stream, try_join, StreamExt};
@@ -26,7 +26,7 @@ pub(crate) struct Uni {
 }
 
 impl Api for Uni {
-    async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>> {
+    async fn add_from_dust(&self, s: Vec<String>) -> Result<Vec<String>> {
         let base = self.list_all().await?;
 
         let base = base.iter().map(|s| s.as_str()).collect::<Vec<_>>();

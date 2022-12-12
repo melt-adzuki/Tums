@@ -2,14 +2,14 @@ use anyhow::*;
 
 /// APIの抽象化レイヤー
 pub trait Api {
-    /// 抜け落ちを含む任意のウニ文字列から新しいウニを検出し，データベースに追加する
-    async fn from_dust(&self, s: Vec<String>) -> Result<Vec<String>>;
-
     /// すべてのウニを文字列として出力する
     async fn list_all(&self) -> Result<Vec<String>>;
 
     /// 文字数制限に収まる範囲でウニを文字列として出力する
     async fn list_short(&self) -> Result<Vec<String>>;
+
+    /// 抜け落ちを含む任意のウニ文字列から新しいウニを検出し，データベースに追加する
+    async fn add_from_dust(&self, s: Vec<String>) -> Result<Vec<String>>;
 
     /// 指定された位置にウニ文字列を追加する
     async fn add(&self, content: String, pos: i32) -> Result<()>;
