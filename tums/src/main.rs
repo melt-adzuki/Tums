@@ -2,40 +2,38 @@
 #![feature(async_fn_in_trait)]
 #![feature(is_some_and)]
 
+mod confs;
 mod feat;
 mod init;
 
 use anyhow::Result;
-use dotenv::dotenv;
 use futures::StreamExt;
 use init::init_api;
 use log::*;
 use std::env;
 
-use crate::feat::{
-    misskey::{api::*, body::*, streaming::*},
-    uni::{api::*, utils::*},
+use crate::{
+    confs::CONFS,
+    feat::{
+        misskey::{api::*, body::*, streaming::*},
+        uni::{api::*, utils::*},
+    },
 };
 
 #[tokio::main]
 async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info");
-    dotenv().ok();
     env_logger::init();
     let api = init_api();
 
     let uni_now = api.list_all().await?.join("\n");
     info!("{}", uni_now);
 
-    let instance = env::var("INSTANCE")?;
-    let token = env::var("TOKEN")?;
-    let timeline = env::var("TIMELINE").unwrap_or("localTimeLine".to_string());
-    info!("instance: {}", instance);
-    info!("token: {}", token);
+    info!("{:#?}", *CONFS);
 
-    let streaming_url = get_stream_url(instance, token)?;
+    let streaming_url = get_stream_url(CONFS.mk_endpnt.to_string(), CONFS.mk_token.to_string())?;
 
-    let mut stream = connect_stream(streaming_url, timeline).await?;
+    let mut stream = connect_stream(streaming_url, CONFS.mk_tlcat.to_string()).await?;
 
     while let Some(msg) = stream.next().await {
         info!("{:?}", msg);
