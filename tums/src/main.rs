@@ -2,13 +2,32 @@
 #![feature(async_fn_in_trait)]
 #![feature(is_some_and)]
 
-mod confs;
-mod feat;
-mod init;
+use anyhow::Result;
+use drivers::{
+    interact_repository_test::InteractRepositoryTestDriver,
+    uni_repository_mdb::UniRepositoryMdbDriver,
+};
+use services::service::Service;
 
+mod confs;
+mod domain;
+mod drivers;
+mod services;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let service = Service {
+        uni_repo: UniRepositoryMdbDriver::new(),
+        interact_repo: InteractRepositoryTestDriver::new(),
+    };
+
+    service.show_uni_service().await?;
+    Ok(())
+}
+
+/*
 use anyhow::Result;
 use futures::StreamExt;
-use init::init_api;
 use log::*;
 use std::env;
 
@@ -64,3 +83,4 @@ async fn main() -> Result<()> {
 
     Ok(())
 }
+*/
