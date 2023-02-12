@@ -1,6 +1,6 @@
 use crate::{
     confs::CONFS,
-    domain::models::uni::{Uni, UniRepository},
+    domain::uni::{Uni, UniRepository},
 };
 use anyhow::*;
 use chrono::{DateTime, Utc};

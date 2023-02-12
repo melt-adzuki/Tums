@@ -1,10 +1,10 @@
-use crate::domain::models::{interact::InteractRepository, uni::UniRepository};
+use crate::domain::{interactor::Interactor, uni::UniRepository};
 
 pub(crate) struct Service<T, U>
 where
     T: UniRepository,
-    U: InteractRepository,
+    U: Interactor,
 {
     pub(crate) uni_repo: T,
-    pub(crate) interact_repo: U,
+    pub(crate) interactor: U,
 }

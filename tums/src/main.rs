@@ -3,10 +3,7 @@
 #![feature(is_some_and)]
 
 use anyhow::Result;
-use drivers::{
-    interact_repository_test::InteractRepositoryTestDriver,
-    uni_repository_mdb::UniRepositoryMdbDriver,
-};
+use drivers::{interactor_test::InteractorTestImpl, uni_repository_mdb::UniRepositoryMdbDriver};
 use services::service::Service;
 
 mod confs;
@@ -18,10 +15,10 @@ mod services;
 async fn main() -> Result<()> {
     let service = Service {
         uni_repo: UniRepositoryMdbDriver::new(),
-        interact_repo: InteractRepositoryTestDriver::new(),
+        interactor: InteractorTestImpl::new(),
     };
 
-    service.show_uni_service().await?;
+    service.show_uni().await?;
     Ok(())
 }
 

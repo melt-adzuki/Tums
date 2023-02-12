@@ -1,16 +1,16 @@
 use anyhow::Result;
 
-use crate::domain::models::{interact::InteractRepository, uni::UniRepository};
+use crate::domain::{interactor::Interactor, uni::UniRepository};
 
 use super::service::Service;
 
 impl<T, U> Service<T, U>
 where
     T: UniRepository,
-    U: InteractRepository,
+    U: Interactor,
 {
     /// 文字数制限に収まる範囲で最新のウニを取得し、全体にアナウンスします。
-    pub(crate) async fn show_uni_service(&self) -> Result<()> {
+    pub(crate) async fn show_uni(&self) -> Result<()> {
         let mut unis = self.uni_repo.list().await?;
         unis.sort_by(|a, b| b.date.cmp(&a.date));
 
@@ -35,7 +35,7 @@ where
             .collect::<Vec<_>>()
             .join("\n");
 
-        self.interact_repo.announce(content).await?;
+        self.interactor.announce(content).await?;
         Ok(())
     }
 }

@@ -1,16 +1,16 @@
 use anyhow::Result;
 
-use crate::domain::models::interact::{InteractRepository, YesNo};
+use crate::domain::interactor::{Interactor, YesNo};
 
-pub(crate) struct InteractRepositoryTestDriver {}
+pub(crate) struct InteractorTestImpl {}
 
-impl InteractRepositoryTestDriver {
+impl InteractorTestImpl {
     pub(crate) fn new() -> Self {
         Self {}
     }
 }
 
-impl InteractRepository for InteractRepositoryTestDriver {
+impl Interactor for InteractorTestImpl {
     async fn announce(&self, content: String) -> Result<()> {
         println!("\n--- アナウンスメント ---\n\n{}", content);
         Ok(())

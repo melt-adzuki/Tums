@@ -4,22 +4,18 @@ use anyhow::Result;
 use futures::{lock::Mutex, stream, StreamExt};
 use similar::{ChangeTag, TextDiff};
 
-use crate::domain::models::{interact::InteractRepository, uni::UniRepository};
+use crate::domain::{interactor::Interactor, uni::UniRepository};
 
 use super::service::Service;
 
 impl<T, U> Service<T, U>
 where
     T: UniRepository,
-    U: InteractRepository,
+    U: Interactor,
 {
     /// タイムラインから自動的に新しい思慮深いウニを検出し、データベースに追加します。
     /// その際、該当の投稿に対して追加された文字列を返信します。
-    pub(crate) async fn add_uni_from_dust_service(
-        &self,
-        dust: String,
-        reply_id: String,
-    ) -> Result<()> {
+    pub(crate) async fn add_uni_from_dust(&self, dust: String, reply_id: String) -> Result<()> {
         let current = self.uni_repo.list().await?;
         let current = current
             .iter()
@@ -75,7 +71,7 @@ where
             lines_added.join("\n")
         );
 
-        self.interact_repo.reply(content, reply_id).await?;
+        self.interactor.reply(content, reply_id).await?;
         Ok(())
     }
 }
