@@ -2,7 +2,10 @@ use log::*;
 use serde_json::json;
 use ws::{connect, Message};
 
-use crate::{confs::CONFS, streaming::body::StreamingBody};
+use crate::{
+    confs::CONFS,
+    streaming::body::{NoteBody, StreamingBody},
+};
 
 pub(crate) async fn start_recieving() -> anyhow::Result<()> {
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
@@ -21,10 +24,7 @@ pub(crate) async fn start_recieving() -> anyhow::Result<()> {
 
         move |msg: Message| {
             let msg = match msg.as_text() {
-                Ok(text) => {
-                    info!("Raw JSON:\n{}", text.replace('\\', ""));
-                    text
-                }
+                Ok(text) => text,
                 Err(error) => {
                     error!("{:#?}", error);
                     return Ok(());
@@ -33,10 +33,16 @@ pub(crate) async fn start_recieving() -> anyhow::Result<()> {
 
             match serde_json::from_str::<StreamingBody>(msg) {
                 Ok(deserialized) => {
-                    info!("Deserialized:\n{:#?}\n", deserialized);
+                    let note_body: NoteBody = deserialized.body.body;
+
+                    info!("isRenote: {}", note_body.renote_id.is_some());
+                    info!(
+                        "Content : {}\n",
+                        note_body.text.unwrap_or("None".to_string())
+                    );
                 }
                 Err(error) => {
-                    warn!("Deserialization failed: {:#?}", error);
+                    warn!("Deserialization failed:\n{:#?}", error);
                 }
             }
 

@@ -19,6 +19,7 @@ pub(crate) struct ChannelBody {
 pub(crate) struct NoteBody {
     pub(crate) id: String,
     #[serde(rename = "renoteId")]
+    pub(crate) renote_id: Option<String>,
     pub(crate) text: Option<String>,
     pub(crate) visibility: Visibility,
     #[serde(rename = "localOnly")]

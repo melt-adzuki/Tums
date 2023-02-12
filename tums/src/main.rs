@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
-    info!("{:#?}", *CONFS);
+    info!("\n{:#?}", *CONFS);
     start_recieving().await?;
 
     Ok(())
