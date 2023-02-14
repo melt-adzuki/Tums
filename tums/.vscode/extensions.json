@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "ms-azuretools.vscode-docker",
         "swellaby.rust-pack"
     ]
 }

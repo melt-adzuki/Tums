@@ -4,10 +4,13 @@ use ws::{connect, Message};
 
 use crate::{
     confs::CONFS,
-    streaming::body::{NoteBody, StreamingBody},
+    streaming::{
+        body::{NoteBody, StreamingBody},
+        router::route,
+    },
 };
 
-pub(crate) async fn start_recieving() -> anyhow::Result<()> {
+pub(crate) async fn recieve() -> anyhow::Result<()> {
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
 
     connect(url, |out| {
@@ -34,12 +37,7 @@ pub(crate) async fn start_recieving() -> anyhow::Result<()> {
             match serde_json::from_str::<StreamingBody>(msg) {
                 Ok(deserialized) => {
                     let note_body: NoteBody = deserialized.body.body;
-
-                    info!("isRenote: {}", note_body.renote_id.is_some());
-                    info!(
-                        "Content : {}\n",
-                        note_body.text.unwrap_or("None".to_string())
-                    );
+                    route(note_body);
                 }
                 Err(error) => {
                     warn!("Deserialization failed:\n{:#?}", error);

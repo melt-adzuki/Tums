@@ -31,7 +31,7 @@ use anyhow::Result;
 use log::*;
 use std::env;
 
-use crate::{confs::CONFS, streaming::reciever::start_recieving};
+use crate::{confs::CONFS, streaming::reciever::recieve};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     info!("\n{:#?}", *CONFS);
-    start_recieving().await?;
+    recieve().await?;
 
     Ok(())
 }

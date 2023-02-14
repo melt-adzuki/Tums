@@ -2,7 +2,7 @@ use anyhow::Result;
 
 use crate::domain::interactor::{Interactor, YesNo};
 
-pub(crate) struct InteractorTestImpl {}
+pub(crate) struct InteractorTestImpl;
 
 impl InteractorTestImpl {
     pub(crate) fn new() -> Self {
