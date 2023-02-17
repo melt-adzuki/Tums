@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use anyhow::{ensure, Result};
 use futures::{lock::Mutex, stream, StreamExt};
+use log::info;
 use similar::{ChangeTag, TextDiff};
 
 use crate::{
@@ -20,7 +21,10 @@ where
     /// その際、該当の投稿に対して追加された文字列を返信します。
     pub(crate) async fn add_uni_from_dust(&self, dust: String, reply_id: String) -> Result<()> {
         let new = dust.split('\n').map(|s| s.trim()).collect::<Vec<_>>();
-        ensure!(new.is_uni(), "思慮深いウニではありません");
+        if !new.is_uni() {
+            info!("The content cannot be a part of Uni.");
+            return Ok(());
+        }
 
         let new = {
             let len = new.len();
@@ -73,14 +77,12 @@ where
         let lines_added = new_lines
             .iter()
             .map(|line| line.0.to_string())
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>()
+            .join("\n");
 
-        let content = format!(
-            "以下を思慮深いウニに追加しました:\n\n{}",
-            lines_added.join("\n")
-        );
-
+        let content = format!("以下を思慮深いウニに追加しました:\n\n{}", lines_added);
         self.interactor.reply(content, reply_id).await?;
+
         Ok(())
     }
 }

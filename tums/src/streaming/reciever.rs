@@ -10,7 +10,7 @@ use crate::{
     },
 };
 
-pub(crate) async fn recieve() -> anyhow::Result<()> {
+pub(crate) fn recieve() -> anyhow::Result<()> {
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
 
     connect(url, |out| {
@@ -37,7 +37,11 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
             match serde_json::from_str::<StreamingBody>(msg) {
                 Ok(deserialized) => {
                     let note_body: NoteBody = deserialized.body.body;
-                    route(note_body);
+                    info!("Recieved a note:\n{:#?}", note_body);
+                    match route(note_body) {
+                        Ok(_) => (),
+                        Err(error) => error!("{}", error.to_string()),
+                    };
                 }
                 Err(error) => {
                     warn!("Deserialization failed:\n{:#?}", error);

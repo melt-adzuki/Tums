@@ -1,4 +1,5 @@
 use anyhow::Result;
+use log::info;
 
 use crate::domain::{interactor::Interactor, uni::UniRepository};
 
@@ -13,14 +14,14 @@ where
     pub(crate) async fn add_uni(&self, content: String, pos: i32) -> Result<()> {
         self.uni_repo.add(content, pos).await?;
 
-        let new_unis = self.uni_repo.list().await?;
-        let new_unis = new_unis
+        let lines_added = self.uni_repo.list().await?;
+        let lines_added = lines_added
             .into_iter()
             .map(|u| u.content)
             .collect::<Vec<_>>()
             .join("\n");
 
-        self.interactor.announce(new_unis).await?;
+        self.interactor.announce(lines_added).await?;
         Ok(())
     }
 }
