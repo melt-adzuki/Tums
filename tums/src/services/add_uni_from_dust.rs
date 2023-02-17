@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use futures::{lock::Mutex, stream, StreamExt};
 use similar::{ChangeTag, TextDiff};
 
-use crate::domain::{interactor::Interactor, uni::UniRepository};
+use crate::{
+    domain::{interactor::Interactor, uni::UniRepository},
+    validation::IsUni,
+};
 
 use super::service::Service;
 
@@ -16,13 +19,19 @@ where
     /// タイムラインから自動的に新しい思慮深いウニを検出し、データベースに追加します。
     /// その際、該当の投稿に対して追加された文字列を返信します。
     pub(crate) async fn add_uni_from_dust(&self, dust: String, reply_id: String) -> Result<()> {
+        let new = dust.split('\n').map(|s| s.trim()).collect::<Vec<_>>();
+        ensure!(new.is_uni(), "思慮深いウニではありません");
+
+        let new = {
+            let len = new.len();
+            &new[2..len - 1].to_vec()
+        };
+
         let current = self.uni_repo.list().await?;
         let current = current
             .iter()
             .map(|u| u.content.as_str())
             .collect::<Vec<_>>();
-
-        let new = dust.split('\n').map(|s| s.trim()).collect::<Vec<_>>();
 
         let diff = TextDiff::from_slices(current.as_slice(), new.as_slice());
 

@@ -1,6 +1,9 @@
 use anyhow::Result;
 
-use crate::domain::{interactor::Interactor, uni::UniRepository};
+use crate::{
+    consts::{UNISTR_FIRST, UNISTR_LAST, UNISTR_SECOND},
+    domain::{interactor::Interactor, uni::UniRepository},
+};
 
 use super::service::Service;
 
@@ -14,7 +17,10 @@ where
         let mut unis = self.uni_repo.list().await?;
         unis.sort_by(|a, b| b.date.cmp(&a.date));
 
-        let mut char_count = 0;
+        let mut char_count = [UNISTR_FIRST, UNISTR_SECOND, UNISTR_LAST]
+            .into_iter()
+            .map(|s| s.chars().count())
+            .sum::<usize>();
         let mut short_unis = Vec::new();
 
         for uni in unis {
@@ -34,6 +40,11 @@ where
             .map(|u| u.content)
             .collect::<Vec<_>>()
             .join("\n");
+
+        let content = format!(
+            "{}\n{}\n{}\n{}\n",
+            UNISTR_FIRST, UNISTR_SECOND, content, UNISTR_LAST
+        );
 
         self.interactor.announce(content).await?;
         Ok(())
