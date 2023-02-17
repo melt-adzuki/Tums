@@ -17,7 +17,8 @@ impl Interactor for InteractorTestImpl {
     }
 
     async fn reply(&self, content: String, reply_id: String) -> Result<()> {
-        todo!()
+        println!("\n--- {} へのリプライ ---\n\n{}", reply_id, content);
+        Ok(())
     }
 
     async fn ask_yes_no(&self, content: String, reply_id: String) -> Result<YesNo> {
