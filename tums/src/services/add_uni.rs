@@ -1,5 +1,4 @@
 use anyhow::Result;
-use log::info;
 
 use crate::domain::{interactor::Interactor, uni::UniRepository};
 

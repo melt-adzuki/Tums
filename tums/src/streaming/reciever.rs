@@ -1,20 +1,22 @@
 use futures::{SinkExt, StreamExt};
-use log::*;
-use serde_json::{json, to_string_pretty};
+use serde_json::json;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
 use crate::{
     confs::CONFS,
+    log,
     streaming::{body::StreamingBody, router::route},
 };
 
 pub(crate) async fn recieve() -> anyhow::Result<()> {
+    log!("BOOT" -> "Connecting to the stream...".cyan());
+
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
     let url: Url = url.parse()?;
 
     let (stream, _) = connect_async(url).await?;
-    info!("Connection established!");
+    log!("BOOT" -> "Connection established!".green());
 
     let (mut write, read) = stream.split();
 
@@ -44,7 +46,7 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
         })
         .await?;
 
-    info!("Channel connection request sent.");
+    log!("BOOT" -> "Ready!".green().bold());
 
     read.for_each(|message| async {
         let message = match move || -> anyhow::Result<String> {
@@ -53,7 +55,7 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
         }() {
             Ok(message) if !message.is_empty() => message,
             Err(error) => {
-                error!("{:#?}", error);
+                log!("ERR!" | "{:#?}", error);
                 return;
             }
             _ => return,
@@ -63,20 +65,30 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
             match serde_json::from_str::<StreamingBody>(message.as_str()) {
                 Ok(deserialized) => deserialized,
                 Err(error) => {
-                    info!(
-                        "Deserialization skipped:\n{:?}\n{}",
+                    log!(
+                        "RECV" | "Deserialization skipped: {:#?}\n{}",
                         error,
-                        to_string_pretty(&message).unwrap_or(message)
+                        message.replace("\\\"", "\"")
                     );
                     return;
                 }
             };
 
-        info!("Recieved body:\n{:#?}", streaming_body);
+        log!(
+            "RECV" | "From {} stream <<< {}: {}",
+            match streaming_body.body.id.as_str() {
+                "1" => "main".green(),
+                "2" => "Timeline".yellow(),
+                _ => "unknown".red(),
+            }
+            .bold(),
+            "A message recieved".bright_blue(),
+            streaming_body.body.body.id
+        );
 
         match route(streaming_body).await {
             Ok(_) => {}
-            Err(error) => error!("{:#?}", error),
+            Err(error) => log!("ERR!" | "{:#?}", error),
         };
     })
     .await;

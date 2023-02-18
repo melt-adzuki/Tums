@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use anyhow::{ensure, Result};
+use anyhow::Result;
 use futures::{lock::Mutex, stream, StreamExt};
-use log::info;
 use similar::{ChangeTag, TextDiff};
 
 use crate::{
     domain::{interactor::Interactor, uni::UniRepository},
+    log,
     validation::IsUni,
 };
 
@@ -22,7 +22,7 @@ where
     pub(crate) async fn add_uni_from_dust(&self, dust: String, reply_id: String) -> Result<()> {
         let new = dust.split('\n').map(|s| s.trim()).collect::<Vec<_>>();
         if !new.is_uni() {
-            info!("The content cannot be a part of Uni.");
+            log!("SRVC" -> "The content cannot be a part of Uni.".dimmed());
             return Ok(());
         }
 

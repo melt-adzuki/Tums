@@ -1,6 +1,7 @@
 use crate::{
     confs::CONFS,
     domain::uni::{Uni, UniRepository},
+    log,
 };
 use anyhow::*;
 use chrono::{DateTime, Utc};
@@ -28,6 +29,8 @@ pub(crate) struct UniRepositoryMdbDriver {
 
 impl UniRepositoryMdbDriver {
     pub(crate) fn new() -> Self {
+        log!("BOOT" -> "MongoDB driver is initializing...".cyan());
+
         let db = {
             let client_options = ClientOptions::builder()
                 .hosts(vec![CONFS.db_host.parse().unwrap()])
