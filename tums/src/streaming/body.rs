@@ -11,30 +11,34 @@ pub(crate) struct StreamingBody {
 pub(crate) struct ChannelBody {
     pub(crate) id: String,
     #[serde(rename = "type")]
-    pub(crate) channel_type: String,
+    pub(crate) channel_type: ChannelType,
     pub(crate) body: NoteBody,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum ChannelType {
+    Note,
+    Mention,
+    Reply,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct NoteBody {
     pub(crate) id: String,
-    #[serde(rename = "renoteId")]
     pub(crate) renote_id: Option<String>,
     pub(crate) text: Option<String>,
     pub(crate) visibility: Visibility,
-    #[serde(rename = "localOnly")]
     pub(crate) local_only: Option<bool>,
     pub(crate) cw: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub(crate) enum Visibility {
-    #[serde(rename = "public")]
     Public,
-    #[serde(rename = "home")]
     Home,
-    #[serde(rename = "followers")]
     Followers,
-    #[serde(rename = "specified")]
     Specified,
 }
