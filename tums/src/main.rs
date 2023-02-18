@@ -19,12 +19,13 @@ mod services;
 mod streaming;
 mod validation;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
 
     info!("\n{:#?}", *CONFS);
 
-    recieve()?;
+    recieve().await?;
     Ok(())
 }
