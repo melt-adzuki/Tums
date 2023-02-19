@@ -65,13 +65,13 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
             match serde_json::from_str::<StreamingBody>(message.as_str()) {
                 Ok(deserialized) => deserialized,
                 Err(error) => {
-                    log!("RECV" | "Deserialization skipped: {:#?}", error);
+                    log!("INFO" | "Deserialization skipped: {:#?}", error);
                     return;
                 }
             };
 
         log!(
-            "RECV" | "From {} stream <<< {}: {}",
+            "INFO" | "From {} stream <<< {}: {}",
             match streaming_body.body.id.as_str() {
                 "1" => "main".green(),
                 "2" => "Timeline".yellow(),

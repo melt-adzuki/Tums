@@ -1,8 +1,11 @@
 use anyhow::Result;
 
-use crate::domain::{
-    interactor::{Interactor, YesNo},
-    uni::UniRepository,
+use crate::{
+    domain::{
+        interactor::{Interactor, YesNo},
+        uni::UniRepository,
+    },
+    log,
 };
 
 use super::service::Service;
@@ -14,6 +17,8 @@ where
 {
     /// 指定された位置の思慮深いウニを削除するか確認し、実行します。
     pub(crate) async fn remove_uni(&self, pos: i32, reply_id: String) -> Result<()> {
+        log!("!" -> "Attempting to remove an Uni!".red().bold());
+
         let removing_uni = self.uni_repo.get(pos).await?;
 
         let msg = format!(

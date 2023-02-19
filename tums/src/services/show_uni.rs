@@ -3,6 +3,7 @@ use anyhow::Result;
 use crate::{
     consts::{UNISTR_FIRST, UNISTR_LAST, UNISTR_SECOND},
     domain::{interactor::Interactor, uni::UniRepository},
+    log,
 };
 
 use super::service::Service;
@@ -14,6 +15,8 @@ where
 {
     /// 文字数制限に収まる範囲で最新のウニを取得し、全体にアナウンスします。
     pub(crate) async fn show_uni(&self) -> Result<()> {
+        log!("INFO" -> "Showing Unis...".cyan());
+
         let mut unis = self.uni_repo.list().await?;
         unis.sort_by(|a, b| b.date.cmp(&a.date));
 

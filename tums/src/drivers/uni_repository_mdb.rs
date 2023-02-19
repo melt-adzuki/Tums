@@ -96,6 +96,8 @@ impl UniRepository for UniRepositoryMdbDriver {
             )
             .await?;
 
+        log!("+" -> content.green().bold());
+
         Ok(())
     }
 
@@ -109,6 +111,8 @@ impl UniRepository for UniRepositoryMdbDriver {
         let query = doc! { "pos": { "$gt": pos, "$lte": last_pos } };
         let update = doc! { "$inc": { "pos": -1 } };
         self.collection.update_many(query, update, None).await?;
+
+        log!("-" -> "An Uni has been removed.".red().bold());
 
         Ok(())
     }

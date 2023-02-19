@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use crate::{confs::CONFS, domain::interactor::Interactor};
+use crate::{confs::CONFS, domain::interactor::Interactor, log};
 
 pub(crate) struct InteractorMisskeyImpl {
     client: reqwest::Client,
@@ -16,6 +16,12 @@ impl InteractorMisskeyImpl {
 
 impl Interactor for InteractorMisskeyImpl {
     async fn announce(&self, content: String) -> anyhow::Result<()> {
+        log!(
+            "INFO" | "To {} >>> {}",
+            "Timeline".yellow().bold(),
+            "Creating a note...".cyan()
+        );
+
         self.client
             .post(format!("https://{}/api/notes/create", CONFS.mk_endpnt))
             .json(&json!({
@@ -30,6 +36,12 @@ impl Interactor for InteractorMisskeyImpl {
     }
 
     async fn reply(&self, content: String, reply_id: String) -> anyhow::Result<()> {
+        log!(
+            "INFO" | "To {} >>> {}",
+            reply_id.green().bold(),
+            "Creating a note...".cyan()
+        );
+
         self.client
             .post(format!("https://{}/api/notes/create", CONFS.mk_endpnt))
             .json(&json!({

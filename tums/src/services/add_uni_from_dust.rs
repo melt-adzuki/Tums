@@ -23,7 +23,6 @@ where
     pub(crate) async fn add_uni_from_dust(&self, dust: String, reply_id: String) -> Result<()> {
         let new = dust.split('\n').map(|s| s.trim()).collect::<Vec<_>>();
         if !new.is_uni() {
-            log!("SRVC" -> "The content cannot be a part of Uni.".dimmed());
             return Ok(());
         }
 
@@ -69,7 +68,7 @@ where
             .await;
 
         if new_lines.is_empty() {
-            log!("SRVC" -> "No new Uni found.".dimmed());
+            log!("INFO" -> "No new Uni found.".dimmed());
             return Ok(());
         }
 
