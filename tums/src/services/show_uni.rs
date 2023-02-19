@@ -44,12 +44,12 @@ where
             .collect::<Vec<_>>()
             .join("\n");
 
-        let content = format!(
+        let message = format!(
             "{}\n{}\n{}\n{}\n",
             UNISTR_FIRST, UNISTR_SECOND, content, UNISTR_LAST
         );
 
-        self.interactor.announce(content).await?;
+        self.interactor.announce(message).await?;
         Ok(())
     }
 }

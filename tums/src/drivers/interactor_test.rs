@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::domain::interactor::{Interactor, YesNo};
+use crate::domain::interactor::Interactor;
 
 pub(crate) struct InteractorTestImpl;
 
@@ -19,9 +19,5 @@ impl Interactor for InteractorTestImpl {
     async fn reply(&self, content: String, reply_id: String) -> Result<()> {
         println!("\n--- {} へのリプライ ---\n\n{}", reply_id, content);
         Ok(())
-    }
-
-    async fn ask_yes_no(&self, content: String, reply_id: String) -> Result<YesNo> {
-        todo!()
     }
 }

@@ -55,12 +55,4 @@ impl Interactor for InteractorMisskeyImpl {
 
         Ok(())
     }
-
-    async fn ask_yes_no(
-        &self,
-        content: String,
-        reply_id: String,
-    ) -> anyhow::Result<crate::domain::interactor::YesNo> {
-        todo!()
-    }
 }

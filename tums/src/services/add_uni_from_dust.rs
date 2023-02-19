@@ -88,8 +88,8 @@ where
             .collect::<Vec<_>>()
             .join("\n");
 
-        let content = format!("以下を思慮深いウニに追加しました:\n\n{}", lines_added);
-        self.interactor.reply(content, reply_id).await?;
+        let message = format!("以下を思慮深いウニに追加しました:\n\n{}", lines_added);
+        self.interactor.reply(message, reply_id).await?;
 
         Ok(())
     }
