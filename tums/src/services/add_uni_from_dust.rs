@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use futures::{lock::Mutex, stream, StreamExt};
+use regex::Regex;
 use similar::{ChangeTag, TextDiff};
 
 use crate::{
@@ -49,7 +50,10 @@ where
                     if c.tag() == ChangeTag::Delete {
                         *counter.lock().await += 1;
                     }
-                    c.tag() == ChangeTag::Insert && c.to_string_lossy().trim().len() >= 4
+                    c.tag() == ChangeTag::Insert
+                        && c.to_string_lossy().trim().len() >= 4
+                        && Regex::new(r".+「.+」")
+                            .is_ok_and(|r| r.is_match(c.to_string_lossy().trim()))
                 }
             })
             .filter_map(|c| {
