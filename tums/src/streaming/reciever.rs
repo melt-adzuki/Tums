@@ -3,11 +3,7 @@ use serde_json::json;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
-use crate::{
-    confs::CONFS,
-    log,
-    streaming::{body::StreamingBody, router::route},
-};
+use crate::{confs::CONFS, entities::StreamingBody, log, streaming::router::route};
 
 pub(crate) async fn recieve() -> anyhow::Result<()> {
     log!("BOOT" -> "Connecting to the stream...".cyan());

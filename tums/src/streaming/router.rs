@@ -1,9 +1,10 @@
 use anyhow::{Context, Result};
 use regex::Regex;
 
-use crate::init::SERVICE;
-
-use super::body::{ChannelBody, ChannelType, NoteBody, StreamingBody};
+use crate::{
+    entities::{ChannelBody, ChannelType, NoteBody, StreamingBody},
+    init::SERVICE,
+};
 
 pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
     let channel_body: ChannelBody = streaming_body.body;

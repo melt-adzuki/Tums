@@ -10,6 +10,7 @@ mod confs;
 mod consts;
 mod domain;
 mod drivers;
+mod entities;
 mod init;
 mod log;
 mod services;
