@@ -1,12 +1,12 @@
 use once_cell::sync::Lazy;
 
 use crate::{
-    drivers::{interactor_test::InteractorTestImpl, uni_repository_mdb::UniRepositoryMdbDriver},
+    drivers::{interactor_mk::InteractorMisskeyImpl, uni_repository_mdb::UniRepositoryMdbDriver},
     services::service::Service,
 };
 
-pub(crate) static SERVICE: Lazy<Service<UniRepositoryMdbDriver, InteractorTestImpl>> =
+pub(crate) static SERVICE: Lazy<Service<UniRepositoryMdbDriver, InteractorMisskeyImpl>> =
     Lazy::new(|| Service {
         uni_repo: UniRepositoryMdbDriver::new(),
-        interactor: InteractorTestImpl::new(),
+        interactor: InteractorMisskeyImpl::new(),
     });
