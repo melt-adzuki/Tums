@@ -13,7 +13,7 @@ where
     T: UniRepository,
     U: Interactor,
 {
-    /// 文字数制限に収まる範囲で最新のウニを取得し、全体にアナウンスします。
+    /// ある程度の長さに収まる範囲で最新のウニを取得し、全体にアナウンスします。
     pub(crate) async fn show_uni(&self) -> Result<()> {
         log!("INFO" -> "Showing Unis...".cyan());
 
@@ -29,7 +29,7 @@ where
         for uni in unis {
             char_count += uni.content.chars().count();
 
-            if char_count > 2700 {
+            if char_count > 500 {
                 break;
             }
 
