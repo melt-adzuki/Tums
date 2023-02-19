@@ -9,18 +9,16 @@ where
     T: UniRepository,
     U: Interactor,
 {
-    /// 指定された位置に思慮深いウニを追加した後、全体に結果をアナウンスします。
-    pub(crate) async fn add_uni(&self, content: String, pos: i32) -> Result<()> {
-        self.uni_repo.add(content, pos).await?;
+    /// 指定された位置に思慮深いウニを追加します。
+    pub(crate) async fn add_uni(&self, content: String, pos: i32, reply_id: String) -> Result<()> {
+        self.uni_repo.add(content.clone(), pos).await?;
 
-        let lines_added = self.uni_repo.list().await?;
-        let lines_added = lines_added
-            .into_iter()
-            .map(|u| u.content)
-            .collect::<Vec<_>>()
-            .join("\n");
+        let message = format!(
+            "{}番目に以下の思慮深いウニを追加しました:\n\n{}",
+            pos, content
+        );
 
-        self.interactor.announce(lines_added).await?;
+        self.interactor.reply(message, reply_id).await?;
         Ok(())
     }
 }

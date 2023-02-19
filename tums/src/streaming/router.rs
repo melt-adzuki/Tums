@@ -31,7 +31,10 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
 
             match command {
                 "show" => SERVICE.show_uni().await?,
-                "list" => SERVICE.list_uni().await?,
+                "list" => {
+                    let reply_id = note_body.id;
+                    SERVICE.list_uni(reply_id).await?
+                }
                 "add" => {
                     let pos: i32 = context
                         .get(1)
@@ -41,7 +44,8 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
                         .get(2..)
                         .context("No Uni found on the command.")?
                         .join(" ");
-                    SERVICE.add_uni(content, pos).await?;
+                    let reply_id = note_body.id;
+                    SERVICE.add_uni(content, pos, reply_id).await?;
                 }
                 "remove" => {
                     let pos: i32 = context
