@@ -64,6 +64,11 @@ where
             .collect::<Vec<_>>()
             .await;
 
+        if new_lines.is_empty() {
+            log!("SRVC" -> "No new Uni found.".dimmed());
+            return Ok(());
+        }
+
         for line in new_lines.iter() {
             let content = line.0.to_string();
             let pos = line.1 as i32;
