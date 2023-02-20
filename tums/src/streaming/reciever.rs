@@ -3,9 +3,14 @@ use serde_json::json;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use url::Url;
 
-use crate::{confs::CONFS, entities::StreamingBody, log, streaming::router::route};
+use crate::{
+    confs::CONFS,
+    entities::{StreamingBody, User},
+    log,
+    streaming::router::route,
+};
 
-pub(crate) async fn recieve() -> anyhow::Result<()> {
+pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
     log!("BOOT" -> "Connecting to the stream...".cyan());
 
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
@@ -75,7 +80,7 @@ pub(crate) async fn recieve() -> anyhow::Result<()> {
             streaming_body.body.body.id
         );
 
-        match route(streaming_body).await {
+        match route(me, streaming_body).await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),
         };

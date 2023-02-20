@@ -1,7 +1,9 @@
 use ::serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{confs::CONFS, domain::interactor::Interactor, entities::NoteBody, log};
+use crate::{
+    confs::CONFS, domain::interactor::Interactor, entities::NoteBody, init::REQWEST_CLIENT, log,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -9,15 +11,13 @@ struct NoteCreateResponse {
     created_note: NoteBody,
 }
 
-pub(crate) struct InteractorMisskeyImpl {
-    client: reqwest::Client,
-}
+pub(crate) struct InteractorMisskeyImpl;
 
 impl InteractorMisskeyImpl {
     pub(crate) fn new() -> Self {
-        Self {
-            client: reqwest::Client::new(),
-        }
+        log!("BOOT" -> "Misskey driver is initializing...".cyan());
+
+        Self {}
     }
 
     async fn create_note(
@@ -44,8 +44,7 @@ impl InteractorMisskeyImpl {
             json["replyId"] = json!(reply_id);
         }
 
-        let response: NoteCreateResponse = self
-            .client
+        let response: NoteCreateResponse = REQWEST_CLIENT
             .post(format!("https://{}/api/notes/create", CONFS.mk_endpnt))
             .json(&json)
             .send()

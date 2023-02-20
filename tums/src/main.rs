@@ -2,8 +2,9 @@
 #![feature(async_fn_in_trait)]
 #![feature(is_some_and)]
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use colored::Colorize;
+use entities::User;
 use streaming::reciever::recieve;
 
 mod confs;
@@ -29,6 +30,11 @@ async fn main() -> Result<()> {
 
     log!("BOOT" -> "Starting up...".cyan());
 
-    recieve().await?;
+    let me = User::me().await?;
+
+    ensure!(me.is_bot, "This is not a bot account!");
+    ensure!(!me.is_cat, "This is a cat account!");
+
+    recieve(&me).await?;
     Ok(())
 }

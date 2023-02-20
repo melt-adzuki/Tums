@@ -51,3 +51,24 @@ pub(crate) struct User {
     pub(crate) is_cat: bool,
     pub(crate) is_bot: bool,
 }
+
+impl User {
+    pub(crate) async fn me() -> anyhow::Result<Self> {
+        use crate::{confs::CONFS, init::REQWEST_CLIENT, log};
+        use serde_json::json;
+
+        log!("BOOT" -> "Getting ready for my account...".cyan());
+
+        let me: User = REQWEST_CLIENT
+            .post(format!("https://{}/api/i", CONFS.mk_endpnt))
+            .json(&json!({
+                "i": CONFS.mk_token,
+            }))
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(me)
+    }
+}

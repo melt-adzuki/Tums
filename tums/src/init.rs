@@ -5,6 +5,8 @@ use crate::{
     services::service::Service,
 };
 
+pub(crate) static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(reqwest::Client::new);
+
 pub(crate) static SERVICE: Lazy<Service<UniRepositoryMdbDriver, InteractorMisskeyImpl>> =
     Lazy::new(|| Service {
         uni_repo: UniRepositoryMdbDriver::new(),

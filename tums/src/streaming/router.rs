@@ -2,11 +2,11 @@ use anyhow::{Context, Result};
 use regex::Regex;
 
 use crate::{
-    entities::{ChannelBody, ChannelType, NoteBody, StreamingBody},
+    entities::{ChannelBody, ChannelType, NoteBody, StreamingBody, User},
     init::SERVICE,
 };
 
-pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
+pub(crate) async fn route(me: &User, streaming_body: StreamingBody) -> Result<()> {
     let channel_body: ChannelBody = streaming_body.body;
     let channel_type: ChannelType = channel_body.channel_type;
     let note_body: NoteBody = channel_body.body;
@@ -14,7 +14,7 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
     let reply_id = note_body.id;
     let user = note_body.user;
 
-    if user.is_bot {
+    if user.id == me.id || user.is_bot {
         return Ok(());
     }
 
