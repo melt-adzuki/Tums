@@ -67,7 +67,7 @@ impl InteractorMisskeyImpl {
         for line in content.split('\n') {
             char_count += line.chars().count();
 
-            if char_count > 600 {
+            if char_count > 2700 {
                 let response = self.create_note(lines.join("\n"), reply_id).await?;
                 reply_id = Some(response.created_note.id);
 
