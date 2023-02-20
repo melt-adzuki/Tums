@@ -31,6 +31,7 @@ pub(crate) struct NoteBody {
     pub(crate) visibility: Visibility,
     pub(crate) local_only: Option<bool>,
     pub(crate) cw: Option<String>,
+    pub(crate) user: User,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -40,4 +41,13 @@ pub(crate) enum Visibility {
     Home,
     Followers,
     Specified,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct User {
+    pub(crate) id: String,
+    pub(crate) username: String,
+    pub(crate) is_cat: bool,
+    pub(crate) is_bot: bool,
 }

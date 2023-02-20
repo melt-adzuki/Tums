@@ -11,10 +11,16 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
     let channel_type: ChannelType = channel_body.channel_type;
     let note_body: NoteBody = channel_body.body;
     let text = note_body.text.unwrap_or_default();
+    let reply_id = note_body.id;
+    let user = note_body.user;
+
+    if user.is_bot {
+        return Ok(());
+    }
 
     match channel_type {
-        ChannelType::Note if note_body.renote_id.is_none() => {
-            SERVICE.add_uni_from_dust(text, note_body.id).await?
+        ChannelType::Note if note_body.renote_id.is_none() && !user.is_cat => {
+            SERVICE.add_uni_from_dust(text, reply_id).await?;
         }
         ChannelType::Mention => {
             let context = text
@@ -31,28 +37,29 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
 
             match command {
                 "show" => SERVICE.show_uni().await?,
-                "list" => {
-                    let reply_id = note_body.id;
-                    SERVICE.list_uni(reply_id).await?
-                }
+                "list" => SERVICE.list_uni(reply_id).await?,
                 "add" => {
-                    let pos: i32 = context
-                        .get(1)
-                        .context("No position command found.")?
-                        .parse()?;
-                    let content = context
-                        .get(2..)
-                        .context("No Uni found on the command.")?
-                        .join(" ");
-                    let reply_id = note_body.id;
-                    SERVICE.add_uni(content, pos, reply_id).await?;
+                    if user.is_cat {
+                        SERVICE.cat(reply_id).await?;
+                    } else {
+                        let pos: i32 = context
+                            .get(1)
+                            .context("No position command found.")?
+                            .parse()?;
+                        let content = context
+                            .get(2..)
+                            .context("No Uni found on the command.")?
+                            .join(" ");
+
+                        SERVICE.add_uni(content, pos, reply_id).await?;
+                    }
                 }
                 "remove" => {
                     let pos: i32 = context
                         .get(1)
                         .context("No position command found.")?
                         .parse()?;
-                    let reply_id = note_body.id;
+
                     SERVICE.remove_uni(pos, reply_id).await?;
                 }
                 _ => {}
