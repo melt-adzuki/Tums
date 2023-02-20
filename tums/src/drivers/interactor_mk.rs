@@ -28,9 +28,10 @@ impl InteractorMisskeyImpl {
         log!(
             "INFO" | "To {} >>> {}",
             match reply_id.clone() {
-                Some(reply_id) => reply_id.green().bold(),
-                None => "Timeline".yellow().bold(),
-            },
+                Some(reply_id) => reply_id.green(),
+                None => "Timeline".yellow(),
+            }
+            .bold(),
             "Creating a note...".cyan()
         );
 

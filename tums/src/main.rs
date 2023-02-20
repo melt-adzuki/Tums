@@ -7,6 +7,7 @@ use colored::Colorize;
 use entities::User;
 use streaming::reciever::recieve;
 
+mod cat;
 mod confs;
 mod consts;
 mod domain;

@@ -80,7 +80,7 @@ pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
             streaming_body.body.body.id
         );
 
-        match route(me, streaming_body).await {
+        match route(me, &streaming_body).await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),
         };

@@ -1,4 +1,8 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
+
+use crate::{confs::CONFS, init::REQWEST_CLIENT, log};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct StreamingBody {
@@ -31,7 +35,7 @@ pub(crate) struct NoteBody {
     pub(crate) visibility: Visibility,
     pub(crate) local_only: Option<bool>,
     pub(crate) cw: Option<String>,
-    pub(crate) user: User,
+    pub(crate) user: NotedUser,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -45,18 +49,33 @@ pub(crate) enum Visibility {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct User {
+pub(crate) struct NotedUser {
     pub(crate) id: String,
-    pub(crate) username: String,
     pub(crate) is_cat: bool,
     pub(crate) is_bot: bool,
 }
 
-impl User {
-    pub(crate) async fn me() -> anyhow::Result<Self> {
-        use crate::{confs::CONFS, init::REQWEST_CLIENT, log};
-        use serde_json::json;
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct User {
+    pub(crate) id: String,
+    pub(crate) is_cat: bool,
+    pub(crate) is_bot: bool,
+    pub(crate) is_moderator: Option<bool>,
+    pub(crate) is_admin: Option<bool>,
+    pub(crate) roles: Option<Vec<Role>>,
+}
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct Role {
+    pub(crate) name: String,
+    pub(crate) is_moderator: bool,
+    pub(crate) is_administrator: bool,
+}
+
+impl User {
+    pub(crate) async fn me() -> Result<Self> {
         log!("BOOT" -> "Getting ready for my account...".cyan());
 
         let me: User = REQWEST_CLIENT
@@ -70,5 +89,36 @@ impl User {
             .await?;
 
         Ok(me)
+    }
+
+    pub(crate) async fn from(id: &str) -> Result<Self> {
+        log!(
+            "INFO" | "{} {}{}",
+            "Fetching the account of".cyan(),
+            id.green().bold(),
+            "...".cyan()
+        );
+
+        let user: User = REQWEST_CLIENT
+            .post(format!("https://{}/api/users/show", CONFS.mk_endpnt))
+            .json(&json!({
+                "i": CONFS.mk_token,
+                "userId": id,
+            }))
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(user)
+    }
+
+    pub(crate) async fn is_tums_mod(&self) -> bool {
+        self.is_moderator.is_some_and(|b| b)
+            || self.is_admin.is_some_and(|b| b)
+            || self.roles.clone().is_some_and(|r| {
+                r.iter()
+                    .any(|r| r.is_moderator || r.is_administrator || r.name == *"Tums")
+            })
     }
 }
