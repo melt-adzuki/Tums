@@ -20,7 +20,6 @@ pub(crate) struct ChannelBody {
 pub(crate) enum ChannelType {
     Note,
     Mention,
-    Reply,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

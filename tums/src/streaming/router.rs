@@ -16,7 +16,7 @@ pub(crate) async fn route(streaming_body: StreamingBody) -> Result<()> {
         ChannelType::Note if note_body.renote_id.is_none() => {
             SERVICE.add_uni_from_dust(text, note_body.id).await?
         }
-        ChannelType::Mention | ChannelType::Reply => {
+        ChannelType::Mention => {
             let context = text
                 .split_whitespace()
                 .filter(|s| {
