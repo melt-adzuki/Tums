@@ -68,18 +68,6 @@ pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
                 Err(_) => return,
             };
 
-        log!(
-            "INFO" | "From {} stream <<< {}: {}",
-            match streaming_body.body.id.as_str() {
-                "1" => "main".green(),
-                "2" => "Timeline".yellow(),
-                _ => "unknown".red(),
-            }
-            .bold(),
-            "A message recieved".bright_blue(),
-            streaming_body.body.body.id
-        );
-
         match route(me, &streaming_body).await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),

@@ -12,30 +12,23 @@ pub(crate) struct StreamingBody {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct ChannelBody {
-    pub(crate) id: String,
-    #[serde(rename = "type")]
-    pub(crate) channel_type: ChannelType,
-    pub(crate) body: NoteBody,
+#[serde(tag = "type", rename_all = "camelCase")]
+pub(crate) enum ChannelBody {
+    Note { body: Note },
+    Mention { body: Note },
+    Followed { body: User },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub(crate) enum ChannelType {
-    Note,
-    Mention,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct NoteBody {
+pub(crate) struct Note {
     pub(crate) id: String,
     pub(crate) renote_id: Option<String>,
     pub(crate) text: Option<String>,
     pub(crate) visibility: Visibility,
     pub(crate) local_only: Option<bool>,
     pub(crate) cw: Option<String>,
-    pub(crate) user: NotedUser,
+    pub(crate) user: User,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -45,14 +38,6 @@ pub(crate) enum Visibility {
     Home,
     Followers,
     Specified,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct NotedUser {
-    pub(crate) id: String,
-    pub(crate) is_cat: bool,
-    pub(crate) is_bot: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

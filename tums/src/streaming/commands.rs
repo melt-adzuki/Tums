@@ -1,13 +1,9 @@
 use anyhow::{bail, ensure, Context, Result};
 use regex::Regex;
 
-use crate::{
-    entities::{NotedUser, User},
-    exceptions::Exception::*,
-    init::SERVICE,
-};
+use crate::{entities::User, exceptions::Exception::*, init::SERVICE};
 
-pub(crate) async fn command(text: &str, user: &NotedUser, reply_id: String) -> Result<()> {
+pub(crate) async fn command(text: &str, user: &User, reply_id: String) -> Result<()> {
     let context = text
         .split_whitespace()
         .filter(|s| {
@@ -22,6 +18,7 @@ pub(crate) async fn command(text: &str, user: &NotedUser, reply_id: String) -> R
         "show" => SERVICE.show_uni().await?,
         "list" => SERVICE.list_uni(reply_id).await?,
         "add" => {
+            // We cannnot grab the full information of an user from note.
             let user = User::from(&user.id).await?;
 
             ensure!(!user.is_cat, CatAccount.msg());

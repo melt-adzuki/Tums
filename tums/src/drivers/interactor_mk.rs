@@ -2,13 +2,13 @@ use ::serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    confs::CONFS, domain::interactor::Interactor, entities::NoteBody, init::REQWEST_CLIENT, log,
+    confs::CONFS, domain::interactor::Interactor, entities::Note, init::REQWEST_CLIENT, log,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct NoteCreateResponse {
-    created_note: NoteBody,
+    created_note: Note,
 }
 
 pub(crate) struct InteractorMisskeyImpl;
@@ -88,6 +88,25 @@ impl InteractorMisskeyImpl {
 }
 
 impl Interactor for InteractorMisskeyImpl {
+    async fn subscribe(&self, user_id: String) -> anyhow::Result<()> {
+        log!(
+            "INFO" | "To {} >>> {}",
+            user_id.green().bold(),
+            "Following user back...".cyan()
+        );
+
+        REQWEST_CLIENT
+            .post(format!("https://{}/api/following/create", CONFS.mk_endpnt))
+            .json(&json!({
+                "i": CONFS.mk_token,
+                "userId": user_id,
+            }))
+            .send()
+            .await?;
+
+        Ok(())
+    }
+
     async fn announce(&self, content: String) -> anyhow::Result<()> {
         self.create_segmented_note(content, None).await?;
         Ok(())
