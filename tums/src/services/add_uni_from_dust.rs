@@ -61,7 +61,7 @@ where
                 async move {
                     let count = *counter.lock().await;
                     c.new_index()
-                        .map(|index| (c.to_string_lossy().to_string(), index + 1 + count))
+                        .map(|index| (c.to_string_lossy().trim().to_string(), index + 1 + count))
                 }
             })
             .collect::<Vec<_>>()
