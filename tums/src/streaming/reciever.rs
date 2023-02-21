@@ -65,7 +65,10 @@ pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
         let streaming_body: StreamingBody =
             match serde_json::from_str::<StreamingBody>(message.as_str()) {
                 Ok(deserialized) => deserialized,
-                Err(_) => return,
+                Err(_) => {
+                    log!("INFO" -> "Deserialization skipped.".dimmed());
+                    return;
+                }
             };
 
         match route(me, &streaming_body).await {
