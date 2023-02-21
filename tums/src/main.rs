@@ -7,12 +7,14 @@ use colored::Colorize;
 use entities::User;
 use streaming::reciever::recieve;
 
-mod cat;
+use crate::exceptions::Exception::*;
+
 mod confs;
 mod consts;
 mod domain;
 mod drivers;
 mod entities;
+mod exceptions;
 mod init;
 mod log;
 mod services;
@@ -33,8 +35,8 @@ async fn main() -> Result<()> {
 
     let me = User::me().await?;
 
-    ensure!(me.is_bot, "This is not a bot account!");
-    ensure!(!me.is_cat, "This is a cat account!");
+    ensure!(me.is_bot, NotDrivenByBotAccount.msg());
+    ensure!(!me.is_cat, DrivenByCatAccount.msg());
 
     recieve(&me).await?;
     Ok(())

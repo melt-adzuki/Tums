@@ -1,9 +1,9 @@
-use anyhow::{ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use regex::Regex;
 
 use crate::{
-    cat::generate_cat,
     entities::{NotedUser, User},
+    exceptions::Exception::*,
     init::SERVICE,
 };
 
@@ -16,9 +16,7 @@ pub(crate) async fn command(text: &str, user: &NotedUser, reply_id: String) -> R
         })
         .collect::<Vec<_>>();
 
-    let command = *context
-        .first()
-        .context("No command found on the context.")?;
+    let command = *context.first().context(CommandNotFound.msg())?;
 
     match command {
         "show" => SERVICE.show_uni().await?,
@@ -26,19 +24,16 @@ pub(crate) async fn command(text: &str, user: &NotedUser, reply_id: String) -> R
         "add" => {
             let user = User::from(&user.id).await?;
 
-            ensure!(!user.is_cat, generate_cat()?);
-            ensure!(
-                user.is_tums_mod().await,
-                "You do not have permission to use this command."
-            );
+            ensure!(!user.is_cat, CatAccount.msg());
+            ensure!(user.is_tums_mod().await, NoPermission.msg());
 
             let pos: i32 = context
                 .get(1)
-                .context("No position command found.")?
+                .context(PositionCommandNotFound.msg())?
                 .parse()?;
             let content = context
                 .get(2..)
-                .context("No Uni found on the command.")?
+                .context(NoUniFoundOnTheCommand.msg())?
                 .join(" ");
 
             SERVICE.add_uni(content, pos, reply_id).await?;
@@ -46,19 +41,16 @@ pub(crate) async fn command(text: &str, user: &NotedUser, reply_id: String) -> R
         "remove" => {
             let user = User::from(&user.id).await?;
 
-            ensure!(
-                user.is_tums_mod().await,
-                "You do not have permission to use this command."
-            );
+            ensure!(user.is_tums_mod().await, NoPermission.msg());
 
             let pos: i32 = context
                 .get(1)
-                .context("No position command found.")?
+                .context(PositionCommandNotFound.msg())?
                 .parse()?;
 
             SERVICE.remove_uni(pos, reply_id).await?;
         }
-        _ => {}
+        _ => bail!(NoSuchCommand.msg()),
     };
 
     Ok(())
