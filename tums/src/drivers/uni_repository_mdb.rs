@@ -1,6 +1,7 @@
 use crate::{
     confs::CONFS,
     domain::uni::{Uni, UniRepository},
+    exceptions::Exception::*,
     log,
 };
 use anyhow::*;
@@ -75,7 +76,21 @@ impl UniRepository for UniRepositoryMdbDriver {
     }
 
     async fn get(&self, pos: i32) -> Result<Uni> {
-        todo!()
+        let filter = doc! { "pos": pos };
+
+        let uni_bson = self
+            .collection
+            .find_one(filter, None)
+            .await?
+            .context(NoUniFoundOnThisPosition.msg())?;
+
+        let uni = Uni {
+            content: uni_bson.content.trim().to_string(),
+            date: uni_bson.added_date,
+            pos: uni_bson.pos,
+        };
+
+        Ok(uni)
     }
 
     async fn add(&self, content: String, pos: i32) -> Result<()> {

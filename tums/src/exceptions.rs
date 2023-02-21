@@ -7,6 +7,7 @@ pub(crate) enum Exception {
     NoPermission,
     CommandNotFound,
     PositionCommandNotFound,
+    NoUniFoundOnThisPosition,
     NoUniFoundOnTheCommand,
     NoSuchCommand,
 }
@@ -30,6 +31,7 @@ impl Exception {
             NoPermission => "You do not have permission to use this command.",
             CommandNotFound => "No command found on the context.",
             PositionCommandNotFound => "No position command found.",
+            NoUniFoundOnThisPosition => "No Uni found on this position.",
             NoUniFoundOnTheCommand => "No Uni found on the command.",
             NoSuchCommand => "No such command.",
         }
