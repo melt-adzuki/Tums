@@ -32,6 +32,8 @@ pub(crate) async fn route(me: &User, streaming_body: &StreamingBody) -> Result<(
             SERVICE
                 .add_uni_from_dust(text, reply_id.to_string())
                 .await?;
+
+            log!("INFO" -> "Done.");
         }
         ChannelBody::Mention { body } if body.user.id != me.id && !body.user.is_bot => {
             log!(
@@ -53,8 +55,20 @@ pub(crate) async fn route(me: &User, streaming_body: &StreamingBody) -> Result<(
                         .await?;
                 }
             }
+
+            log!("INFO" -> "Done.");
         }
-        ChannelBody::Followed { body } => SERVICE.interactor.subscribe(body.id.to_string()).await?,
+        ChannelBody::Followed { body } => {
+            log!(
+                "INFO" | "From {} <<< {}",
+                body.id.green().bold(),
+                "An user followed me!".bright_blue()
+            );
+
+            SERVICE.interactor.subscribe(body.id.to_string()).await?;
+
+            log!("INFO" -> "Done.");
+        }
         _ => {}
     };
 
