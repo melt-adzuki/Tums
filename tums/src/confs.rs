@@ -20,7 +20,7 @@ impl Default for Confs {
             db_password: "password".to_string(),
             mk_endpnt: "submarin.online".to_string(),
             mk_token: "".to_string(),
-            mk_tlcat: "localTimeLine".to_string(),
+            mk_tlcat: "hybridTimeline".to_string(),
         }
     }
 }
@@ -35,7 +35,7 @@ pub(crate) static CONFS: Lazy<Confs> = Lazy::new(|| {
         db_username: var("DB_USERNAME").unwrap_or(default.db_username),
         db_password: var("DB_PASSWORD").unwrap_or(default.db_password),
         mk_endpnt: var("INSTANCE").unwrap_or(default.mk_endpnt),
-        mk_token: var("TOKEN").unwrap_or(default.mk_token),
+        mk_token: var("TOKEN").unwrap(),
         mk_tlcat: var("TIMELINE").unwrap_or(default.mk_tlcat),
     }
 });
