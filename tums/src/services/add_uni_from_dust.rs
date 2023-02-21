@@ -84,7 +84,7 @@ where
 
         let lines_added = new_lines
             .iter()
-            .map(|line| line.0.to_string())
+            .map(|line| format!("{}. {}", line.1, line.0))
             .collect::<Vec<_>>()
             .join("\n");
 

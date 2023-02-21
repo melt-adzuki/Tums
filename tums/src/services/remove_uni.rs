@@ -14,7 +14,7 @@ where
         let removing_uni = self.uni_repo.get(pos).await?;
 
         let message = format!(
-            "{}番目にあった以下の思慮深いウニを削除しました:\n\n{}",
+            "以下の思慮深いウニを削除しました:\n\n{}. {}",
             removing_uni.pos, removing_uni.content
         );
 
