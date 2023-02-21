@@ -44,10 +44,14 @@ pub(crate) enum Visibility {
 #[serde(rename_all = "camelCase")]
 pub(crate) struct User {
     pub(crate) id: String,
+    #[serde(default)]
     pub(crate) is_cat: bool,
+    #[serde(default)]
     pub(crate) is_bot: bool,
-    pub(crate) is_moderator: Option<bool>,
-    pub(crate) is_admin: Option<bool>,
+    #[serde(default)]
+    pub(crate) is_moderator: bool,
+    #[serde(default)]
+    pub(crate) is_admin: bool,
     pub(crate) roles: Option<Vec<Role>>,
 }
 
@@ -99,8 +103,8 @@ impl User {
     }
 
     pub(crate) async fn is_tums_mod(&self) -> bool {
-        self.is_moderator.is_some_and(|b| b)
-            || self.is_admin.is_some_and(|b| b)
+        self.is_moderator
+            || self.is_admin
             || self.roles.clone().is_some_and(|r| {
                 r.iter()
                     .any(|r| r.is_moderator || r.is_administrator || r.name == *"Tums")
