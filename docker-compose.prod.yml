@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  tums:
+    build: .
+    restart: always
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - ./data/db:/data/db
+      - ./data/configdb:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+
