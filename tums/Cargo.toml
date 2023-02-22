@@ -18,9 +18,21 @@ dotenv = "0.15.0"
 uuid = { version = "1.2.2", features = ["v4", "serde"] }
 serde_json = "1.0.93"
 env_logger = "0.10.0"
-tokio-tungstenite = { version = "*", features = ["native-tls"] }
+tokio-tungstenite = { version = "*", features = ["rustls-tls-webpki-roots"] }
 url = "2.3.1"
 colored = "2.0.0"
 regex = "1.7.1"
-reqwest = { version = "0.11.14", features = ["json"] }
+reqwest = { version = "0.11.14", features = ["json", "rustls-tls-webpki-roots"], default-features = false }
 rand = "0.8.5"
+
+[profile.release]
+strip = "symbols"
+opt-level = "s"
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = false
+panic = 'unwind'
+incremental = false
+codegen-units = 16
+rpath = false
