@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use futures::{lock::Mutex, stream, StreamExt};
-use regex::Regex;
 use similar::{ChangeTag, TextDiff};
 
 use crate::{
@@ -50,9 +49,6 @@ where
                         *counter.lock().await += 1;
                     }
                     c.tag() == ChangeTag::Insert
-                        && c.to_string_lossy().trim().len() >= 4
-                        && Regex::new(r".+「.+」")
-                            .is_ok_and(|r| r.is_match(c.to_string_lossy().trim()))
                 }
             })
             .filter_map(|c| {
@@ -61,7 +57,7 @@ where
                 async move {
                     let count = *counter.lock().await;
                     c.new_index()
-                        .map(|index| (c.to_string_lossy().trim().to_string(), index + 1 + count))
+                        .map(|index| (c.to_string_lossy().to_string(), index + 1 + count))
                 }
             })
             .collect::<Vec<_>>()
