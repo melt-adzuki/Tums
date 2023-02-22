@@ -2,6 +2,8 @@
 #![feature(async_fn_in_trait)]
 #![feature(is_some_and)]
 
+use std::{thread, time::Duration};
+
 use anyhow::{ensure, Result};
 use colored::Colorize;
 use entities::User;
@@ -38,6 +40,16 @@ async fn main() -> Result<()> {
     ensure!(me.is_bot, NotDrivenByBotAccount.msg());
     ensure!(!me.is_cat, DrivenByCatAccount.msg());
 
-    recieve(&me).await?;
-    Ok(())
+    let mut retry_duration = Duration::from_secs(10);
+
+    loop {
+        match recieve(&me).await {
+            Ok(_) => {}
+            Err(error) => log!("ERR!" | "{:#?}", error),
+        };
+
+        log!("INFO" -> format!("Retrying after {} seconds...", retry_duration.as_secs()).cyan().bold());
+        thread::sleep(retry_duration);
+        retry_duration *= 2;
+    }
 }
