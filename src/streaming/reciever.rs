@@ -1,3 +1,4 @@
+use anyhow::ensure;
 use futures::{SinkExt, StreamExt};
 use serde_json::json;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
@@ -6,11 +7,17 @@ use url::Url;
 use crate::{
     confs::CONFS,
     entities::{StreamingBody, User},
+    exceptions::Exception::*,
     log,
     streaming::router::route,
 };
 
-pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
+pub(crate) async fn recieve() -> anyhow::Result<()> {
+    let me = User::me().await?;
+
+    ensure!(me.is_bot, NotDrivenByBotAccount.msg());
+    ensure!(!me.is_cat, DrivenByCatAccount.msg());
+
     log!("BOOT" -> "Connecting to the stream...".cyan());
 
     let url = format!("wss://{}/streaming?i={}", CONFS.mk_endpnt, CONFS.mk_token);
@@ -71,7 +78,7 @@ pub(crate) async fn recieve(me: &User) -> anyhow::Result<()> {
                 }
             };
 
-        match route(me, &streaming_body).await {
+        match route(&me, &streaming_body).await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),
         };
