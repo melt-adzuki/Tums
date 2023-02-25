@@ -4,12 +4,9 @@
 
 use std::{thread, time::Duration};
 
-use anyhow::{ensure, Result};
+use anyhow::Result;
 use colored::Colorize;
-use entities::User;
 use streaming::reciever::recieve;
-
-use crate::exceptions::Exception::*;
 
 mod confs;
 mod consts;
