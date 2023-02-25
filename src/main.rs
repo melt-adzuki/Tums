@@ -21,7 +21,6 @@ mod init;
 mod log;
 mod services;
 mod streaming;
-mod validation;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -35,15 +34,10 @@ async fn main() -> Result<()> {
 
     log!("BOOT" -> "Starting up...".cyan());
 
-    let me = User::me().await?;
-
-    ensure!(me.is_bot, NotDrivenByBotAccount.msg());
-    ensure!(!me.is_cat, DrivenByCatAccount.msg());
-
     let mut retry_duration = Duration::from_secs(10);
 
     loop {
-        match recieve(&me).await {
+        match recieve().await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),
         };

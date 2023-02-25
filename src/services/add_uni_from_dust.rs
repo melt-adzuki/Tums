@@ -5,9 +5,11 @@ use futures::{lock::Mutex, stream, StreamExt};
 use similar::{ChangeTag, TextDiff};
 
 use crate::{
-    domain::{interactor::Interactor, uni::UniRepository},
+    domain::{
+        interactor::Interactor,
+        uni::{IsUni, UniRepository},
+    },
     log,
-    validation::IsUni,
 };
 
 use super::service::Service;
