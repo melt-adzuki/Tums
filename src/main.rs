@@ -2,11 +2,13 @@
 #![feature(async_fn_in_trait)]
 #![feature(is_some_and)]
 
-use std::{thread, time::Duration};
+use std::time::Duration;
 
-use anyhow::Result;
 use colored::Colorize;
+use futures::lock::Mutex;
+use once_cell::sync::Lazy;
 use streaming::reciever::recieve;
+use tokio::time;
 
 mod confs;
 mod consts;
@@ -20,7 +22,7 @@ mod services;
 mod streaming;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     println!(
         "\n{}\n{}\n{}\n{}\n\nA Thoughtful Uni Management System\n",
         r"     _____ _   _ __  __ ___ ".bold().blue(),
@@ -31,7 +33,16 @@ async fn main() -> Result<()> {
 
     log!("BOOT" -> "Starting up...".cyan());
 
-    let mut retry_duration = Duration::from_secs(10);
+    static RETRY_COUNTER: Lazy<Mutex<i32>> = Lazy::new(|| Mutex::new(0));
+
+    tokio::spawn(async {
+        let mut interval = time::interval(Duration::from_secs(3600));
+
+        loop {
+            interval.tick().await;
+            *RETRY_COUNTER.lock().await = 0;
+        }
+    });
 
     loop {
         match recieve().await {
@@ -39,8 +50,21 @@ async fn main() -> Result<()> {
             Err(error) => log!("ERR!" | "{:#?}", error),
         };
 
-        log!("INFO" -> format!("Retrying after {} seconds...", retry_duration.as_secs()).cyan().bold());
-        thread::sleep(retry_duration);
-        retry_duration *= 2;
+        let mut counter = RETRY_COUNTER.lock().await;
+
+        if *counter >= 10 {
+            break;
+        }
+
+        log!("INFO" -> "Retrying after 10 seconds...".cyan().bold());
+        log!(
+            "INFO" | "Remaining life(s): {}",
+            (3 - *counter).to_string().red().bold()
+        );
+
+        time::sleep(Duration::from_secs(10)).await;
+        *counter += 1;
     }
+
+    log!("ERR!" -> "Too many retries, exiting...".red().bold());
 }
