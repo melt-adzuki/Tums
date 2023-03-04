@@ -59,7 +59,7 @@ async fn main() {
         log!("INFO" -> "Retrying after 10 seconds...".cyan().bold());
         log!(
             "INFO" | "Remaining life(s): {}",
-            (3 - *counter).to_string().red().bold()
+            (10 - *counter).to_string().red().bold()
         );
 
         time::sleep(Duration::from_secs(10)).await;
