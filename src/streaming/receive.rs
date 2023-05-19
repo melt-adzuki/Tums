@@ -12,7 +12,7 @@ use crate::{
     streaming::router::route,
 };
 
-pub(crate) async fn recieve() -> anyhow::Result<()> {
+pub(crate) async fn receive() -> anyhow::Result<()> {
     let me = User::me().await?;
 
     ensure!(me.is_bot, NotDrivenByBotAccount.msg());

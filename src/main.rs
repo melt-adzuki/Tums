@@ -7,7 +7,7 @@ use std::time::Duration;
 use colored::Colorize;
 use futures::lock::Mutex;
 use once_cell::sync::Lazy;
-use streaming::reciever::recieve;
+use streaming::receive::receive;
 use tokio::time;
 
 mod confs;
@@ -45,7 +45,7 @@ async fn main() {
     });
 
     loop {
-        match recieve().await {
+        match receive().await {
             Ok(_) => {}
             Err(error) => log!("ERR!" | "{:#?}", error),
         };

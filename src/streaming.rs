@@ -1,3 +1,3 @@
 pub(crate) mod commands;
-pub(crate) mod reciever;
+pub(crate) mod receive;
 pub(crate) mod router;
